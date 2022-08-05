@@ -342,6 +342,5 @@ healthchecksdb
 
 # Application
 /logs
-/src/build.bat
 /venv/
-/ci/test.py
+SETTINGS.py
