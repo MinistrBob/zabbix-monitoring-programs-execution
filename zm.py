@@ -30,6 +30,7 @@ def main():
         exit(1)
     # Execute process
     execute_cmd(process, message_prefix=message_prefix)
+    logger.info(f"Start process {process}")
     # Send zabbix info
 
     logger.info(f"Process executed in {datetime.now() - mine_time} sec.")
@@ -78,7 +79,6 @@ def set_logger():
 
 
 def execute_cmd(cmd, cwd_=None, message=None, message_prefix=None, output_prefix=None):
-    out = ""
     if not message_prefix:
         message_prefix = ""
     if not output_prefix:
@@ -97,7 +97,6 @@ def execute_cmd(cmd, cwd_=None, message=None, message_prefix=None, output_prefix
         else:
             # out = output.decode("utf-8")
             log.info(f'{output_prefix}{completed_process.stdout}')
-    return out
 
 
 if __name__ == '__main__':
