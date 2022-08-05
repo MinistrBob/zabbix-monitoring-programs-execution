@@ -16,15 +16,21 @@ def main():
     mine_time = datetime.now()
     process = sys.argv[1]
     logger.info(f"Start process {process}")
+    # Get app settings
     get_settings()
     logger.debug(settings)
+    # Create app logger
     set_logger()
+    # Check app arguments
     if len(sys.argv) > 2:
         logger.error(f"Too many arguments")
         exit(1)
     elif len(sys.argv) < 2:
         logger.error(f"Executed process not specified")
         exit(1)
+    # Execute process
+    execute_cmd(process, message_prefix=message_prefix)
+    # Send zabbix info
 
     logger.info(f"Process executed in {datetime.now() - mine_time} sec.")
 
@@ -69,6 +75,29 @@ def set_logger():
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setFormatter(stdout_log_formatter)
     logger.addHandler(stdout_handler)
+
+
+def execute_cmd(cmd, cwd_=None, message=None, message_prefix=None, output_prefix=None):
+    out = ""
+    if not message_prefix:
+        message_prefix = ""
+    if not output_prefix:
+        output_prefix = ""
+    if message:
+        log.info(f"{message_prefix}{message}")
+    else:
+        log.info(f"{message_prefix}{cmd}")
+    if not settings.dry_run:
+        try:
+            # output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, )
+            completed_process = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True, cwd=cwd_)
+        except subprocess.CalledProcessError as exc:
+            log.error("ERROR:\n", exc.returncode, exc.output)
+            exit(777)
+        else:
+            # out = output.decode("utf-8")
+            log.info(f'{output_prefix}{completed_process.stdout}')
+    return out
 
 
 if __name__ == '__main__':
