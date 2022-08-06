@@ -5,6 +5,7 @@ import shutil
 import sys
 import traceback
 from datetime import datetime
+from pyzabbix import ZabbixAPI
 
 # Program settings
 settings = {}
@@ -13,27 +14,45 @@ logger = logging.getLogger()
 
 
 def main():
-    mine_time = datetime.now()
-    process = sys.argv[1]
-    logger.info(f"Start process {process}")
     # Get app settings
-    get_settings()
-    logger.debug(settings)
+    try:
+        get_settings()
+    except Exception as exc:
+        msg = f"ERROR: zm.py cannot get settings\n{exc.returncode}\n{exc.output}"
+        print(msg)
+        telegram_notification(msg)
+        exit(1)
     # Create app logger
     set_logger()
+    logger.debug(settings)
     # Check app arguments
     if len(sys.argv) > 2:
-        logger.error(f"Too many arguments")
-        exit(1)
+        raise_error("Too many arguments", AttributeError)
     elif len(sys.argv) < 2:
-        logger.error(f"Executed process not specified")
-        exit(1)
+        raise_error("Executed process not specified", AttributeError)
+    process = sys.argv[1]
+    # Connect to zabbix server
+    try:
+        zapi = ZabbixAPI(url=settings.ZM_ZABBIX_URL, user=settings.ZM_ZABBIX_USER, password=settings.ZM_ZABBIX_PASSWORD)
+    except Exception as exc:
+        raise_error("zm.py cannot connect to zabbix", exc)
     # Execute process
-    execute_cmd(process, message_prefix=message_prefix)
     logger.info(f"Start process {process}")
+    mine_time = datetime.now()
+    execute_cmd(process, message_prefix=message_prefix)
+    logger.info(f"Process executed in {datetime.now() - mine_time} sec.")
     # Send zabbix info
 
-    logger.info(f"Process executed in {datetime.now() - mine_time} sec.")
+
+def raise_error(message, exc):
+    logger.error("ERROR: {message}")
+    logger.error("ERROR:\n", exc.returncode, exc.output)
+    # TODO: telegram message
+    exit(1)
+
+
+def telegram_notification(message):
+    pass
 
 
 class Settings(object):
@@ -54,13 +73,16 @@ def get_settings():
     # settings['ZM_LOG_DIR'] = os.getenv('ZM_LOG_DIR', os.path.abspath(os.path.dirname(__file__)))
     # Zabbix settings
     # zabbix_sender binary
-    settings['ZM_ZABBIX_SENDER'] = os.getenv('ZM_ZABBIX_SENDER', "/usr/bin/zabbix_sender")
+    # settings['ZM_ZABBIX_SENDER'] = os.getenv('ZM_ZABBIX_SENDER', "/usr/bin/zabbix_sender")
     # Zabbix agent configuration file
-    settings['ZM_ZABBIX_SENDER_CONF'] = os.getenv('ZM_ZABBIX_SENDER_CONF', "/etc/zabbix/zabbix_agentd.conf")
+    # settings['ZM_ZABBIX_SENDER_CONF'] = os.getenv('ZM_ZABBIX_SENDER_CONF', "/etc/zabbix/zabbix_agentd.conf")
     # OK value for Zabbix
     settings['ZM_ZABBIX_OK'] = os.getenv('ZABBIX_OK', 0)
     # Not OK value for Zabbix
     settings['ZM_ZABBIX_NOT_OK'] = os.getenv('ZM_ZABBIX_NOT_OK', 1)
+    settings['ZM_ZABBIX_URL'] = 'http://172.26.12.86'
+    settings['ZM_ZABBIX_USER'] = 'bobrovsky'
+    settings['ZM_ZABBIX_PASSWORD'] = '7#TS9$Vt#Ccu'
 
     settings = Settings(settings)
 
@@ -84,19 +106,18 @@ def execute_cmd(cmd, cwd_=None, message=None, message_prefix=None, output_prefix
     if not output_prefix:
         output_prefix = ""
     if message:
-        log.info(f"{message_prefix}{message}")
+        logger.info(f"{message_prefix}{message}")
     else:
-        log.info(f"{message_prefix}{cmd}")
+        logger.info(f"{message_prefix}{cmd}")
     if not settings.dry_run:
         try:
             # output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, )
             completed_process = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True, cwd=cwd_)
         except subprocess.CalledProcessError as exc:
-            log.error("ERROR:\n", exc.returncode, exc.output)
-            exit(777)
+            raise_error("process ended with error", exc)
         else:
             # out = output.decode("utf-8")
-            log.info(f'{output_prefix}{completed_process.stdout}')
+            logger.info(f'{output_prefix}{completed_process.stdout}')
 
 
 if __name__ == '__main__':
