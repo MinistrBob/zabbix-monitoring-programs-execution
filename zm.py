@@ -6,7 +6,8 @@ import sys
 import traceback
 from urllib import request, parse
 from datetime import datetime
-from pyzabbix import ZabbixAPI
+# from pyzabbix import ZabbixAPI
+from pyzabbix import ZabbixMetric, ZabbixSender
 
 # Program settings
 settings = {}
@@ -65,30 +66,39 @@ def raise_error(message, exc):
     trace = f"<b>ERROR</b>: <b>returncode</b>={exc.returncode}; <b>output</b>:\n{exc.output}"
     logger.error(message)
     logger.error(trace)
-    if settings.ZM_TELEGRAM_NOTIF:
-        message = f"""❌ <b>zm.py</b> from <b>{settings.HOSTNAME}</b>
+    message = f"""❌ <b>zm.py</b> from <b>{settings.HOSTNAME}</b>
 Error during process execution <code>{process}</code>
 {message}
 {trace}"""
-        telegram_notification(message)
+    telegram_notification(message)
     exit(1)
 
 
+def zabbix_sender():
+    m = ZabbixMetric('localhost', 'cpu[usage]', 20)
+    metrics.append(m)
+    if settings.ZM_ZABBIX_SEND_TIME:
+        m = ZabbixMetric('localhost', 'cpu[usage]', 20)
+        metrics.append(m)
+    zbx = ZabbixSender('127.0.0.1')
+    zbx.send(metrics)
+
+
 def telegram_notification(message):
-    params = {
-        'chat_id': settings.ZM_TELEGRAM_CHAT,
-        'disable_web_page_preview': '1',
-        'parse_mode': 'HTML',
-        'text': message
-    }
-    logger.debug(params)
-    data = parse.urlencode(params).encode()
-    logger.debug(data)
-    req = request.Request(f"https://api.telegram.org/bot{settings.ZM_TELEGRAM_BOT_TOKEN}/sendMessage", data=data)
-    logger.debug(req)
-    resp = request.urlopen(req)
-    logger.debug(resp)
-    return resp
+    if settings.ZM_TELEGRAM_NOTIF:
+        params = {
+            'chat_id': settings.ZM_TELEGRAM_CHAT,
+            'disable_web_page_preview': '1',
+            'parse_mode': 'HTML',
+            'text': message
+        }
+        logger.debug(params)
+        data = parse.urlencode(params).encode()
+        logger.debug(data)
+        req = request.Request(f"https://api.telegram.org/bot{settings.ZM_TELEGRAM_BOT_TOKEN}/sendMessage", data=data)
+        logger.debug(req)
+        resp = request.urlopen(req)
+        logger.debug(resp)
 
 
 class Settings(object):
@@ -114,6 +124,8 @@ def get_settings():
     # Zabbix settings
     # Should app send data to Zabbix?
     settings['ZM_ZABBIX_SEND'] = os.getenv('ZM_ZABBIX_SEND', True)
+    # Should app send execution time to Zabbix?
+    settings['ZM_ZABBIX_SEND_TIME'] = os.getenv('ZM_ZABBIX_SEND_TIME', True)
     # OK value for Zabbix
     settings['ZM_ZABBIX_OK'] = os.getenv('ZABBIX_OK', 0)
     # Not OK value for Zabbix
