@@ -119,31 +119,36 @@ class Settings(object):
 
 def get_settings():
     global settings
-    settings['ZM_DEBUG'] = os.getenv("ZM_DEBUG", False).lower() in 'true'
-    # For Telegram message to see which host this message is from
+    # Enable DEBUG mode?
+    settings['ZM_DEBUG'] = os.getenv("ZM_DEBUG", 'False').lower() in 'true'
+    # For Telegram message to see which host this message is from.
     settings['HOSTNAME'] = os.getenv('HOSTNAME', "Unknown")
     # settings['ZM_LOG_DIR'] = os.getenv('ZM_LOG_DIR', os.path.abspath(os.path.dirname(__file__)))
-    # Should app send telegram alerts? or log messages only to stdout.
-    settings['ZM_TELEGRAM_NOTIF'] = os.getenv("ZM_TELEGRAM_NOTIF", True).lower() in 'true'
 
     # Zabbix settings
     # Should app send data to Zabbix?
-    settings['ZM_ZABBIX_SEND'] = os.getenv("ZM_ZABBIX_SEND", False).lower() in 'true'
+    settings['ZM_ZABBIX_SEND'] = os.getenv("ZM_ZABBIX_SEND", 'True').lower() in 'true'
     # Should app send execution time to Zabbix?
-    settings['ZM_ZABBIX_SEND_TIME'] = os.getenv("ZM_ZABBIX_SEND_TIME", False).lower() in 'true'
-    # OK value for Zabbix
+    settings['ZM_ZABBIX_SEND_TIME'] = os.getenv("ZM_ZABBIX_SEND_TIME", 'True').lower() in 'true'
+    # OK value for Zabbix.
     settings['ZM_ZABBIX_OK'] = os.getenv('ZABBIX_OK', 0)
-    # Not OK value for Zabbix
+    # Not OK value for Zabbix.
     settings['ZM_ZABBIX_NOT_OK'] = os.getenv('ZM_ZABBIX_NOT_OK', 1)
+    # Zabbix server ip address.
     settings['ZM_ZABBIX_IP'] = os.getenv('ZM_ZABBIX_IP', None)
+    # Zabbix "Host name". How is the host named in Zabbix.
     settings['ZM_ZABBIX_HOST_NAME'] = os.getenv('ZM_ZABBIX_HOST_NAME', None)
+    # How is the trapped item key named in Zabbix.
     settings['ZM_ZABBIX_ITEM_NAME'] = os.getenv('ZM_ZABBIX_ITEM_NAME', None)
+    # How is the trapped item for execution time key named in Zabbix.
     settings['ZM_ZABBIX_ITEM_TIME_NAME'] = os.getenv('ZM_ZABBIX_ITEM_TIME_NAME', None)
 
     # Telegram settings
-    # Telegram connection timeout
+    # Should app send telegram alerts? or log messages only to stdout.
+    settings['ZM_TELEGRAM_NOTIF'] = os.getenv("ZM_TELEGRAM_NOTIF", 'True').lower() in 'true'
+    # Telegram connection timeout.
     settings['ZM_TELEGRAM_TIMEOUT'] = os.getenv('ZM_TELEGRAM_TIMEOUT', 10)
-    # Telegram AUTH
+    # Telegram AUTH.
     settings['ZM_TELEGRAM_BOT_TOKEN'] = os.getenv('ZM_TELEGRAM_BOT_TOKEN', None)
     settings['ZM_TELEGRAM_CHAT'] = os.getenv('ZM_TELEGRAM_CHAT', None)
 
