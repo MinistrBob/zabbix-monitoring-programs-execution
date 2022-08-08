@@ -51,13 +51,34 @@ Or you cat create your own graphs.
 ![zabbix trapped item](https://github.com/MinistrBob/zabbix-monitoring-programs-execution/blob/main/static/latest-data.png?raw=true)
 ### Settings
 You must set environment variables on the computer where the zm.py will run and under the account under which zm.py will run.   
-There are many 
+There are many ways to define environment variables.  
 ### Run
-
-#### (OPTIONAL) Docker image
+In this example, I write all the necessary variables in file `.bash_profile`.  
+```commandline
+export ZM_ZABBIX_IP="172.26.12.86"
+export ZM_ZABBIX_HOST_NAME="172.26.12.168"
+export ZM_ZABBIX_ITEM_NAME="docker-rmi-sh"
+export ZM_ZABBIX_ITEM_TIME_NAME="docker-rmi-sh-time"
+export ZM_TELEGRAM_BOT_TOKEN="1470616475:AAHFSvznxxLTDedQBSiRVrYVP49ixkghpRT"
+export ZM_TELEGRAM_CHAT="123456789"
+```
+#### 1) As script
+```commandline
+mkdir /usr/share/zabbix-monitoring-programs-execution
+cd /usr/share/zabbix-monitoring-programs-execution
+git clone https://github.com/MinistrBob/zabbix-monitoring-programs-execution.git .
+python3 zm.py <process>
+``` 
+#### 2) As Docker container (RECOMMENDED)
 If you want run zm.py as docker container you can take docker image here - `ministrbob/zabbix-monitoring-programs-execution:latest`
-
-
+```commandline
+docker run --rm ministrbob/zabbix-monitoring-programs-execution:latest <process>
+```
+#### 3) As cronjob (or if you use sudo -s or su)
+If you use cronjob or if you use sudo -s or su you will need `source` command
+```commandline
+* * * * * source /home/user/.bash_profile; python3 zm.py <process>
+```
 
 ## For developers
 ### Get and install requirements (requirements.txt)
