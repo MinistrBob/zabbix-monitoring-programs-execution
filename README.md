@@ -33,6 +33,7 @@ You can run zm.py in a Docker container.
 | `ZM_TELEGRAM_TIMEOUT` | `10` | Telegram connection timeout.                                                                                                                                                                                            |
 | `ZM_TELEGRAM_BOT_TOKEN` | `None` | Telegram bot token. It usually looks like this `1470616475:AAHFSvznxxLTDedQBSiRVrYVP49ixkghpRT`. You need to create a bot in Telegram using [BotFather](https://t.me/BotFather) and you can also get a bot token there. |
 | `ZM_TELEGRAM_CHAT` | `None` | Telegram chat (ID) to which the bot will send messages. If this is a private chat, then usually the ID looks like a positive number. If it is a channel or group then ID is a negative number.                          |
+
 **NOTE**: Parameter `ZM_ZABBIX_HOST_NAME` you can see here  
 ![zabbix trapped item](https://github.com/MinistrBob/zabbix-monitoring-programs-execution/blob/main/static/zabbix-host-name.png?raw=true)
 
@@ -70,7 +71,6 @@ git clone https://github.com/MinistrBob/zabbix-monitoring-programs-execution.git
 python3 zm.py <process>
 ``` 
 #### 2) As Docker container (RECOMMENDED)
-If you want run zm.py as docker container you can take docker image here - `ministrbob/zabbix-monitoring-programs-execution:latest`
 ```commandline
 docker run --rm ministrbob/zabbix-monitoring-programs-execution:latest <process>
 ```
@@ -97,7 +97,7 @@ MESSAGE: ❌ Test <b>bold</b>,
 <pre>pre-formatted fixed-width code block</pre>
 ```
 ### Build Docker image
-You can take docker image here - `ministrbob/zabbix-monitoring-programs-execution:latest`
+You can take docker image here - `ministrbob/zabbix-monitoring-programs-execution:latest`.  
 If you want run zm.py as docker container you can build docker image and push it to your own docker hub.  
 ```
 docker login
