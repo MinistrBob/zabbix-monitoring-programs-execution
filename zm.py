@@ -34,12 +34,12 @@ def main():
     if settings.ZM_TELEGRAM_NOTIF and \
             (not settings.ZM_TELEGRAM_BOT_TOKEN or not settings.ZM_TELEGRAM_CHAT):
         print(f"ERROR: Telegram notifications are enabled but the parameters ZM_TELEGRAM_BOT_TOKEN, ZM_TELEGRAM_CHAT "
-              f"are not defined\n{exc.returncode}\n{exc.output}")
+              f"are not defined")
         exit(1)
     if settings.ZM_ZABBIX_SEND and \
-            (not settings.ZM_ZABBIX_URL or not settings.ZM_ZABBIX_USER or not settings.ZM_ZABBIX_PASSWORD):
-        print(f"ERROR: Send data to Zabbix are enabled but the parameters ZM_ZABBIX_URL, ZM_ZABBIX_USER, "
-              f"ZM_ZABBIX_PASSWORD are not defined\n{exc.returncode}\n{exc.output}")
+            (not settings.ZM_ZABBIX_IP or not settings.ZM_ZABBIX_HOST_NAME or not settings.ZM_ZABBIX_ITEM_NAME):
+        print(f"ERROR: Send data to Zabbix are enabled but the parameters ZM_ZABBIX_IP, ZM_ZABBIX_HOST_NAME, "
+              f"ZM_ZABBIX_ITEM_NAME are not defined")
         exit(1)
     # Check app arguments
     if len(sys.argv) > 2:
