@@ -15,10 +15,12 @@ settings = {}
 logger = logging.getLogger()
 # Executed process
 process = ""
+time_execution = 0
+result = 0
 
 
 def main():
-    global process
+    global process, time_execution
     # Get app settings
     try:
         get_settings()
@@ -45,23 +47,22 @@ def main():
     elif len(sys.argv) < 2:
         raise_error("Executed process not specified", AttributeError)
     process = sys.argv[1]
-    # Connect to Zabbix server
-    try:
-        zapi = ZabbixAPI(url=settings.ZM_ZABBIX_URL, user=settings.ZM_ZABBIX_USER, password=settings.ZM_ZABBIX_PASSWORD)
-    except Exception as exc:
-        raise_error("zm.py cannot connect to Zabbix", exc)
     # Execute process
     logger.info(f"Start process {process}")
     mine_time = datetime.now()
     execute_cmd(process, message_prefix=message_prefix)
-    logger.info(f"Process executed in {datetime.now() - mine_time} sec.")
+    time_execution = datetime.now() - mine_time
+    logger.info(f"Process executed in {time_execution} sec.")
     # Send Zabbix info
     if settings.ZM_ZABBIX_SEND:
-        pass
-        # TODO: Send data to Zabbix
+        try:
+            zabbix_sender()
+        except Exception as exc:
+            raise_error("zm.py cannot send data to zabbix", exc)
+    exit(0)
 
 
-def raise_error(message, exc):
+def raise_error(message, exc, do_error_exit=True):
     message = f"<b>ERROR</b>: {message}"
     trace = f"<b>ERROR</b>: <b>returncode</b>={exc.returncode}; <b>output</b>:\n{exc.output}"
     logger.error(message)
@@ -71,16 +72,19 @@ Error during process execution <code>{process}</code>
 {message}
 {trace}"""
     telegram_notification(message)
-    exit(1)
+    if do_error_exit:
+        exit(1)
 
 
 def zabbix_sender():
-    m = ZabbixMetric('localhost', 'cpu[usage]', 20)
+    global result
+    metrics = []
+    m = ZabbixMetric(settings.ZM_ZABBIX_HOST_NAME, settings.ZM_ZABBIX_ITEM_NAME, result)
     metrics.append(m)
     if settings.ZM_ZABBIX_SEND_TIME:
-        m = ZabbixMetric('localhost', 'cpu[usage]', 20)
+        m = ZabbixMetric(settings.ZM_ZABBIX_HOST_NAME, settings.ZM_ZABBIX_ITEM_TIME_NAME, time_execution)
         metrics.append(m)
-    zbx = ZabbixSender('127.0.0.1')
+    zbx = ZabbixSender(settings.ZM_ZABBIX_IP)
     zbx.send(metrics)
 
 
@@ -115,24 +119,26 @@ class Settings(object):
 
 def get_settings():
     global settings
-    settings['ZM_DEBUG'] = os.getenv('ZM_DEBUG', False)
+    settings['ZM_DEBUG'] = os.getenv("ZM_DEBUG", False).lower() in 'true'
+    # For Telegram message to see which host this message is from
     settings['HOSTNAME'] = os.getenv('HOSTNAME', "Unknown")
     # settings['ZM_LOG_DIR'] = os.getenv('ZM_LOG_DIR', os.path.abspath(os.path.dirname(__file__)))
     # Should app send telegram alerts? or log messages only to stdout.
-    settings['ZM_TELEGRAM_NOTIF'] = os.getenv('ZM_TELEGRAM_NOTIF', True)
+    settings['ZM_TELEGRAM_NOTIF'] = os.getenv("ZM_TELEGRAM_NOTIF", True).lower() in 'true'
 
     # Zabbix settings
     # Should app send data to Zabbix?
-    settings['ZM_ZABBIX_SEND'] = os.getenv('ZM_ZABBIX_SEND', True)
+    settings['ZM_ZABBIX_SEND'] = os.getenv("ZM_ZABBIX_SEND", False).lower() in 'true'
     # Should app send execution time to Zabbix?
-    settings['ZM_ZABBIX_SEND_TIME'] = os.getenv('ZM_ZABBIX_SEND_TIME', True)
+    settings['ZM_ZABBIX_SEND_TIME'] = os.getenv("ZM_ZABBIX_SEND_TIME", False).lower() in 'true'
     # OK value for Zabbix
     settings['ZM_ZABBIX_OK'] = os.getenv('ZABBIX_OK', 0)
     # Not OK value for Zabbix
     settings['ZM_ZABBIX_NOT_OK'] = os.getenv('ZM_ZABBIX_NOT_OK', 1)
-    settings['ZM_ZABBIX_URL'] = os.getenv('ZM_ZABBIX_URL', None)
-    settings['ZM_ZABBIX_USER'] = os.getenv('ZM_ZABBIX_USER', None)
-    settings['ZM_ZABBIX_PASSWORD'] = os.getenv('ZM_ZABBIX_PASSWORD', None)
+    settings['ZM_ZABBIX_IP'] = os.getenv('ZM_ZABBIX_IP', None)
+    settings['ZM_ZABBIX_HOST_NAME'] = os.getenv('ZM_ZABBIX_HOST_NAME', None)
+    settings['ZM_ZABBIX_ITEM_NAME'] = os.getenv('ZM_ZABBIX_ITEM_NAME', None)
+    settings['ZM_ZABBIX_ITEM_TIME_NAME'] = os.getenv('ZM_ZABBIX_ITEM_TIME_NAME', None)
 
     # Telegram settings
     # Telegram connection timeout
@@ -157,23 +163,18 @@ def set_logger():
     logger.addHandler(stdout_handler)
 
 
-def execute_cmd(cmd, cwd_=None, message=None, message_prefix=None, output_prefix=None):
-    if not message_prefix:
-        message_prefix = ""
-    if not output_prefix:
-        output_prefix = ""
-    if message:
-        logger.info(f"{message_prefix}{message}")
-    else:
-        logger.info(f"{message_prefix}{cmd}")
+def execute_cmd(cmd, cwd_=None):
+    global result
     try:
         # output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, )
         completed_process = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True, cwd=cwd_)
     except subprocess.CalledProcessError as exc:
-        raise_error("Process ended with error", exc)
+        result = settings.ZM_ZABBIX_NOT_OK
+        raise_error("Process ended with error", exc, do_error_exit=False)
     else:
+        result = settings.ZM_ZABBIX_OK
         # out = output.decode("utf-8")
-        logger.info(f'{output_prefix}{completed_process.stdout}')
+        logger.info(f'{completed_process.stdout}')
 
 
 if __name__ == '__main__':

@@ -344,3 +344,4 @@ healthchecksdb
 /logs
 /venv/
 SETTINGS.py
+test.py
