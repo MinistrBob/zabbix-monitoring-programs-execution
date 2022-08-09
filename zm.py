@@ -88,6 +88,9 @@ def zabbix_sender():
 
 def telegram_notification(message):
     if settings.ZM_TELEGRAM_NOTIF:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)     Chrome/37.0.2049.0 Safari/537.36'
+        }
         params = {
             'chat_id': settings.ZM_TELEGRAM_CHAT,
             'disable_web_page_preview': '1',
@@ -99,7 +102,7 @@ def telegram_notification(message):
         logger.debug(f"data={data}")
         url = f"https://api.telegram.org/bot{settings.ZM_TELEGRAM_BOT_TOKEN}/sendMessage"
         logger.debug(f"url={url}")
-        req = request.Request(url, data=data, method='POST')
+        req = request.Request(url, data=data, method='POST', headers=headers)
         logger.debug(f"req={req}")
         resp = request.urlopen(req)
         logger.debug(f"resp={resp}")
