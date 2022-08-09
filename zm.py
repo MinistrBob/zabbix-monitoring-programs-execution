@@ -43,9 +43,9 @@ def main():
         exit(1)
     # Check app arguments
     if len(sys.argv) > 2:
-        raise_error("Too many arguments", AttributeError)
+        raise_error("Too many arguments")
     elif len(sys.argv) < 2:
-        raise_error("Executed process not specified", AttributeError)
+        raise_error("Executed process not specified")
     process = sys.argv[1]
     # Execute process
     logger.info(f"Start process {process}")
@@ -57,19 +57,18 @@ def main():
     if settings.ZM_ZABBIX_SEND:
         try:
             zabbix_sender()
-        except Exception as exc:
-            raise_error("zm.py cannot send data to zabbix", exc)
+        except Exception:
+            raise_error("zm.py cannot send data to zabbix")
     exit(0)
 
 
-def raise_error(message, exc, do_error_exit=True):
-    message = f"<b>ERROR</b>: {message}\n<b>ERROR</b>: {exc}"
-    logger.error(message)
-    message = f"""❌ <b>zm.py</b> from <b>{settings.HOSTNAME}</b>
+def raise_error(message, do_error_exit=True):
+    logger.error(f"<b>ERROR</b>: {message}")
+    telegram_message = f"""❌ <b>zm.py</b> from <b>{settings.HOSTNAME}</b>
 Error during process execution <code>{process}</code>
 {message}
 """
-    telegram_notification(message)
+    telegram_notification(telegram_message)
     if do_error_exit:
         exit(1)
 
@@ -88,9 +87,9 @@ def zabbix_sender():
 
 def telegram_notification(message):
     if settings.ZM_TELEGRAM_NOTIF:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)     Chrome/37.0.2049.0 Safari/537.36'
-        }
+        # headers = {
+        #     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)     Chrome/37.0.2049.0 Safari/537.36'
+        # }
         params = {
             'chat_id': settings.ZM_TELEGRAM_CHAT,
             'disable_web_page_preview': '1',
@@ -102,7 +101,8 @@ def telegram_notification(message):
         logger.debug(f"data={data}")
         url = f"https://api.telegram.org/bot{settings.ZM_TELEGRAM_BOT_TOKEN}/sendMessage"
         logger.debug(f"url={url}")
-        req = request.Request(url, data=data, method='POST', headers=headers)
+        # req = request.Request(url, data=data, method='POST', headers=headers)
+        req = request.Request(url, data=data, method='POST')
         logger.debug(f"req={req}")
         resp = request.urlopen(req)
         logger.debug(f"resp={resp}")
@@ -178,7 +178,7 @@ def execute_cmd(cmd, cwd_=None):
         completed_process = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True, cwd=cwd_)
     except subprocess.CalledProcessError as exc:
         result = settings.ZM_ZABBIX_NOT_OK
-        raise_error(f"Process ended with error: code={exc.returncode}; error={exc.stderr}", exc, do_error_exit=False)
+        raise_error(f"Process ended with error: code={exc.returncode}; error={exc.stderr}", do_error_exit=False)
     else:
         result = settings.ZM_ZABBIX_OK
         # out = output.decode("utf-8")
