@@ -94,13 +94,13 @@ def telegram_notification(message):
             'parse_mode': 'HTML',
             'text': message
         }
-        logger.debug(params)
+        logger.debug(f"params={params}")
         data = parse.urlencode(params).encode()
-        logger.debug(data)
+        logger.debug(f"data={data}")
         req = request.Request(f"https://api.telegram.org/bot{settings.ZM_TELEGRAM_BOT_TOKEN}/sendMessage", data=data)
-        logger.debug(req)
+        logger.debug(f"req={req}")
         resp = request.urlopen(req)
-        logger.debug(resp)
+        logger.debug(f"resp={resp}")
 
 
 class Settings(object):
