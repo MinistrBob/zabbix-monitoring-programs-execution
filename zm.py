@@ -176,7 +176,7 @@ def execute_cmd(cmd, cwd_=None):
     global result
     try:
         # output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, )
-        completed_process = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True, cwd=cwd_)
+        completed_process = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, cwd=cwd_)
     except subprocess.CalledProcessError as exc:
         result = settings.ZM_ZABBIX_NOT_OK
         raise_error(f"Process ended with error: code={exc.returncode}; error={exc.stderr}", do_error_exit=False)
