@@ -97,7 +97,9 @@ def telegram_notification(message):
         logger.debug(f"params={params}")
         data = parse.urlencode(params).encode()
         logger.debug(f"data={data}")
-        req = request.Request(f"https://api.telegram.org/bot{settings.ZM_TELEGRAM_BOT_TOKEN}/sendMessage", data=data)
+        url = f"https://api.telegram.org/bot{settings.ZM_TELEGRAM_BOT_TOKEN}/sendMessage"
+        logger.debug(f"url={url}")
+        req = request.Request(url, data=data, method='POST')
         logger.debug(f"req={req}")
         resp = request.urlopen(req)
         logger.debug(f"resp={resp}")
