@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import traceback
+import subprocess
 from urllib import request, parse
 from datetime import datetime
 # from pyzabbix import ZabbixAPI
