@@ -76,7 +76,8 @@ python3 /usr/share/zabbix-monitoring-programs-execution/zm.py <process>
 #### 2) As cronjob (or if you use sudo -s or su)
 If you use cronjob or if you use sudo -s or su you will need `source` command
 ```commandline
-* * * * * source /home/user/.bash_profile; python3 zm.py <process>
+MAILTO=""
+0 3 * * * source /home/user/.bash_profile; python3 /usr/share/zabbix-monitoring-programs-execution/zm.py /usr/share/local/docker-rmi.sh 2>&1
 ```
 
 ## For developers
