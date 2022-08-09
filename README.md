@@ -38,6 +38,8 @@ You can run zm.py in a Docker container.
 ![zabbix trapped item](https://github.com/MinistrBob/zabbix-monitoring-programs-execution/blob/main/static/zabbix-host-name.png?raw=true)
 
 ## Install and run
+### Install Python3
+[Python Download](https://www.python.org/downloads/)
 ### Customize Zabbix
 In this example, `ZM_ZABBIX_ITEM_NAME` will be called `docker-rmi-sh` and `ZM_ZABBIX_ITEM_TIME_NAME` - `docker-rmi-sh-time`. This name will be written in the `Key` field.  
 Create trapped items `ZM_ZABBIX_ITEM_NAME` and if you need `ZM_ZABBIX_ITEM_TIME_NAME`.  
@@ -68,7 +70,8 @@ export ZM_TELEGRAM_CHAT="123456789"
 mkdir /usr/share/zabbix-monitoring-programs-execution
 cd /usr/share/zabbix-monitoring-programs-execution
 git clone https://github.com/MinistrBob/zabbix-monitoring-programs-execution.git .
-python3 zm.py <process>
+pip3 install -r requirements.txt
+python3 /usr/share/zabbix-monitoring-programs-execution/zm.py <process>
 ``` 
 #### 2) As Docker container (RECOMMENDED)
 ```commandline

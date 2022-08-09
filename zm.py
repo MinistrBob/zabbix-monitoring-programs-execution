@@ -24,8 +24,8 @@ def main():
     # Get app settings
     try:
         get_settings()
-    except Exception as exc:
-        print(f"ERROR: zm.py cannot get settings\n{exc.returncode}\n{exc.output}")
+    except Exception:
+        print(f"ERROR: zm.py cannot get settings")
         exit(1)
     # Create app logger
     set_logger()
@@ -63,14 +63,12 @@ def main():
 
 
 def raise_error(message, exc, do_error_exit=True):
-    message = f"<b>ERROR</b>: {message}"
-    trace = f"<b>ERROR</b>: <b>returncode</b>={exc.returncode}; <b>output</b>:\n{exc.output}"
+    message = f"<b>ERROR</b>: {message}\n<b>ERROR</b>: {exc}"
     logger.error(message)
-    logger.error(trace)
     message = f"""❌ <b>zm.py</b> from <b>{settings.HOSTNAME}</b>
 Error during process execution <code>{process}</code>
 {message}
-{trace}"""
+"""
     telegram_notification(message)
     if do_error_exit:
         exit(1)
@@ -175,7 +173,7 @@ def execute_cmd(cmd, cwd_=None):
         completed_process = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True, cwd=cwd_)
     except subprocess.CalledProcessError as exc:
         result = settings.ZM_ZABBIX_NOT_OK
-        raise_error("Process ended with error", exc, do_error_exit=False)
+        raise_error(f"Process ended with error: code={exc.returncode}; error={exc.stderr}", exc, do_error_exit=False)
     else:
         result = settings.ZM_ZABBIX_OK
         # out = output.decode("utf-8")
