@@ -73,11 +73,7 @@ git clone https://github.com/MinistrBob/zabbix-monitoring-programs-execution.git
 pip3 install -r requirements.txt
 python3 /usr/share/zabbix-monitoring-programs-execution/zm.py <process>
 ``` 
-#### 2) As Docker container (RECOMMENDED)
-```commandline
-docker run --rm ministrbob/zabbix-monitoring-programs-execution:latest <process>
-```
-#### 3) As cronjob (or if you use sudo -s or su)
+#### 2) As cronjob (or if you use sudo -s or su)
 If you use cronjob or if you use sudo -s or su you will need `source` command
 ```commandline
 * * * * * source /home/user/.bash_profile; python3 zm.py <process>
@@ -98,12 +94,4 @@ MESSAGE: ❌ Test <b>bold</b>,
 <a href="URL">inline URL</a>
 <code>inline fixed-width code</code>
 <pre>pre-formatted fixed-width code block</pre>
-```
-### Build Docker image
-You can take docker image here - `ministrbob/zabbix-monitoring-programs-execution:latest`.  
-If you want run zm.py as docker container you can build docker image and push it to your own docker hub.  
-```
-docker login
-docker build . -t ministrbob/zabbix-monitoring-programs-execution:latest
-docker push ministrbob/zabbix-monitoring-programs-execution:latest
 ```
