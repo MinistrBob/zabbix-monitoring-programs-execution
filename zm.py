@@ -52,7 +52,7 @@ def main():
     logger.info(f"Start process {process}")
     mine_time = datetime.now()
     execute_cmd(process)
-    time_execution = datetime.now() - mine_time
+    time_execution = round(datetime.now() - mine_time)
     logger.info(f"Process executed in {time_execution} sec.")
     # Send Zabbix info
     if settings.ZM_ZABBIX_SEND:
