@@ -64,13 +64,11 @@ def telegram_notification(settings, logger, message):
         logger.debug(f"resp={resp}")
 
 
-def zabbix_sender(settings, logger, result):
+def zabbix_sender(settings, logger, data):
     metrics = []
-    logger.info(f"Create metric {settings.ZM_ZABBIX_HOST_NAME} - {settings.ZM_ZABBIX_ITEM_NAME} - {result}")
-    m = ZabbixMetric(settings.ZM_ZABBIX_HOST_NAME, settings.ZM_ZABBIX_ITEM_NAME, result)
-    metrics.append(m)
-    if settings.ZM_ZABBIX_SEND_TIME:
-        m = ZabbixMetric(settings.ZM_ZABBIX_HOST_NAME, settings.ZM_ZABBIX_ITEM_TIME_NAME, time_execution)
+    for metric in data:
+        logger.info(f"Create metric {settings.ZM_ZABBIX_HOST_NAME} - {metric} - {data[metric]}")
+        m = ZabbixMetric(settings.ZM_ZABBIX_HOST_NAME, metric, data[metric])
         metrics.append(m)
     zbx = ZabbixSender(settings.ZM_ZABBIX_IP)
     logger.info(f"Send metrics")
