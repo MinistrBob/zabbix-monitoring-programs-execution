@@ -39,7 +39,6 @@ def main(settings, logger):
             zabbix_sender(settings, logger, result)
         except Exception:
             raise_error(settings, logger, "zm.py cannot send data to zabbix")
-    exit(0)
 
 
 def get_settings():
@@ -82,15 +81,18 @@ def get_settings():
 
 
 def execute_cmd(cmd, cwd_=None):
-    result = {settings['ZM_ZABBIX_ITEM_NAME']: 0}
+    result = {settings.ZM_ZABBIX_ITEM_NAME: 0}
     try:
         # output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, )
-        completed_process = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd_)
+        completed_process = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                           cwd=cwd_)
     except subprocess.CalledProcessError as exc:
-        result[settings['ZM_ZABBIX_ITEM_NAME']] = settings.ZM_ZABBIX_NOT_OK
-        raise_error(settings, logger, f"Process '{cmd}' ended with error: code={exc.returncode}; error={exc.stderr}", do_error_exit=False)
+        result[settings.ZM_ZABBIX_ITEM_NAME] = settings.ZM_ZABBIX_NOT_OK
+        raise_error(settings, logger,
+                    f"Process '{cmd}' ended with error: code={exc.returncode}\n{traceback.format_exc()}",
+                    do_error_exit=False)
     else:
-        result[settings['ZM_ZABBIX_ITEM_NAME']] = settings.ZM_ZABBIX_OK
+        result[settings.ZM_ZABBIX_ITEM_NAME] = settings.ZM_ZABBIX_OK
         # out = output.decode("utf-8")
         logger.info(f'{completed_process.stdout}')
     return result

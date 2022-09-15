@@ -24,7 +24,7 @@ def get_logger(settings):
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
-    stdout_log_formatter = logging.Formatter('%(asctime)s|%(levelname)-5s|%(funcName)s| %(message)s')
+    stdout_log_formatter = logging.Formatter('%(asctime)s|%(levelname)-5s|%(funcName)-22s| %(message)s')
     stdout_handler = logging.StreamHandler(sys.stdout)
     stdout_handler.setFormatter(stdout_log_formatter)
     logger.addHandler(stdout_handler)
@@ -34,7 +34,7 @@ def get_logger(settings):
 def raise_error(settings, logger, message, do_error_exit=True):
     logger.error(f"<b>ERROR</b>: {message}")
     telegram_message = f"""❌ <b>zm.py</b> from <b>{settings.HOSTNAME}</b>
-{message}
+<code>{message}</code>
 """
     telegram_notification(settings, logger, telegram_message)
     if do_error_exit:
@@ -46,6 +46,7 @@ def telegram_notification(settings, logger, message):
         # headers = {
         #     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)     Chrome/37.0.2049.0 Safari/537.36'
         # }
+        logger.debug(f"message={message}")
         params = {
             'chat_id': settings.ZM_TELEGRAM_CHAT,
             'disable_web_page_preview': '1',
@@ -67,7 +68,6 @@ def telegram_notification(settings, logger, message):
 def zabbix_sender(settings, logger, data):
     metrics = []
     for metric in data:
-        logger.info(f"Create metric {settings.ZM_ZABBIX_HOST_NAME} - {metric} - {data[metric]}")
         m = ZabbixMetric(settings.ZM_ZABBIX_HOST_NAME, metric, data[metric])
         metrics.append(m)
     zbx = ZabbixSender(settings.ZM_ZABBIX_IP)
