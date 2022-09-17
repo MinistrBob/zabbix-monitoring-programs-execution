@@ -82,7 +82,7 @@ MAILTO=""
 
 ## For developers
 ### Get and install requirements (requirements.txt)
-`pip freeze | Out-File -Encoding UTF8 c:\MyGit\zabbix-monitoring-programs-execution\requirements.txt`  
+`c:\MyGit\zabbix-monitoring-programs-execution\venv\Scripts\pip.exe freeze | Out-File -Encoding UTF8 c:\MyGit\zabbix-monitoring-programs-execution\requirements.txt`  
 `pip install -r c:\MyGit\zabbix-monitoring-programs-execution\requirements.txt`  
 
 ### Telegram
