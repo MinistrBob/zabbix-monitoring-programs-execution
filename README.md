@@ -85,6 +85,12 @@ MAILTO=""
 `c:\MyGit\zabbix-monitoring-programs-execution\venv\Scripts\pip.exe freeze | Out-File -Encoding UTF8 c:\MyGit\zabbix-monitoring-programs-execution\requirements.txt`  
 `pip install -r c:\MyGit\zabbix-monitoring-programs-execution\requirements.txt`  
 
+### Publish the package on pypi.org
+```
+python setup.py sdist
+twine upload dist/*
+```
+
 ### Telegram
 [sendMessage](https://telegram-bot-sdk.readme.io/reference/sendmessage) `https://api.telegram.org/bot{token}/sendMessage`
 Example message (html):

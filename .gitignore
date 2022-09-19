@@ -340,6 +340,10 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 
+# Distribution
+/zmpe.egg-info
+/dist
+
 # Application
 /logs
 /venv/
