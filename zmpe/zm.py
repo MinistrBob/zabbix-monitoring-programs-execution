@@ -21,9 +21,11 @@ def main(settings, logger):
         exit(1)
     # Check app arguments
     if len(sys.argv) > 2:
-        raise_error(settings, logger, "Too many arguments")
+        raise_error(settings, logger, program=settings.PROGRAM, hostname=settings.HOSTNAME,
+                    message="Too many arguments")
     elif len(sys.argv) < 2:
-        raise_error(settings, logger, "Executed process not specified")
+        raise_error(settings, logger, program=settings.PROGRAM, hostname=settings.HOSTNAME,
+                    message="Executed process not specified")
     process = sys.argv[1]
     # Execute process
     logger.info(f"Start process {process}")
@@ -38,11 +40,14 @@ def main(settings, logger):
         try:
             zabbix_sender(settings, logger, result)
         except Exception:
-            raise_error(settings, logger, "zm.py cannot send data to zabbix")
+            raise_error(settings, logger, program=settings.PROGRAM, hostname=settings.HOSTNAME,
+                        message="zm.py cannot send data to zabbix")
 
 
 def get_settings():
     settings = {}
+    # Get program name (without extension so that telegram does not convert the program name into a link)
+    settings['PROGRAM'] = os.path.splitext(os.path.basename(__file__))[0]
     # Enable DEBUG mode?
     settings['ZM_DEBUG'] = os.getenv("ZM_DEBUG", 'False').lower() in 'true'
     # For Telegram message to see which host this message is from.
@@ -88,8 +93,8 @@ def execute_cmd(cmd, cwd_=None):
                                            cwd=cwd_)
     except subprocess.CalledProcessError as exc:
         result[settings.ZM_ZABBIX_ITEM_NAME] = settings.ZM_ZABBIX_NOT_OK
-        raise_error(settings, logger,
-                    f"Process '{cmd}' ended with error: code={exc.returncode}\n{traceback.format_exc()}",
+        raise_error(settings, logger, program=settings.PROGRAM, hostname=settings.HOSTNAME,
+                    message=f"Process '{cmd}' ended with error: code={exc.returncode}\n{traceback.format_exc()}",
                     do_error_exit=False)
     else:
         result[settings.ZM_ZABBIX_ITEM_NAME] = settings.ZM_ZABBIX_OK
@@ -119,4 +124,5 @@ if __name__ == '__main__':
     try:
         main(settings, logger)
     except:
-        raise_error(settings, logger, f"{traceback.format_exc()}")
+        raise_error(settings, logger, program=settings.PROGRAM, hostname=settings.HOSTNAME,
+                    message=f"{traceback.format_exc()}")

@@ -31,9 +31,12 @@ def get_logger(settings):
     return logger
 
 
-def raise_error(settings, logger, message, do_error_exit=True):
-    logger.error(f"<b>ERROR</b>: {message}")
-    telegram_message = f"""❌ <b>zm.py</b> from <b>{settings.HOSTNAME}</b>
+def raise_error(settings, logger,
+                program="Program not set", hostname="Hostname not set", message="Message not set",
+                do_error_exit=True):
+    logger.error(message)
+    telegram_message = f"""❌ <b>Program:{program}
+Host:{hostname}</b>
 <code>{message}</code>
 """
     telegram_notification(settings, logger, telegram_message)
