@@ -69,6 +69,14 @@ def telegram_notification(settings, logger, message):
 
 
 def zabbix_sender(settings, logger, data):
+    """
+    Send metrics to Zabbix server.
+    :param settings:
+    :param logger:
+    :param data: Dictionary of metrics. Example:
+    {'metric1': 0, 'metric2': 'result123', ...}
+    :return:
+    """
     metrics = []
     for metric in data:
         m = ZabbixMetric(settings.ZM_ZABBIX_HOST_NAME, metric, data[metric])
