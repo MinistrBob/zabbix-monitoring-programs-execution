@@ -88,7 +88,7 @@ MAILTO=""
 ### Publish the package on pypi.org
 ```
 python setup.py sdist
-twine upload dist/*
+twine upload --skip-existing dist/*
 ```
 
 ### Telegram

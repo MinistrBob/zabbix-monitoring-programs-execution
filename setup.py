@@ -10,6 +10,7 @@ setup(name='zmpe',
       author='Dmitry Bobrovsky',
       author_email='ministrbob777@gmail.com',
       packages=['zmpe'],
+      install_requires=['py-zabbix'],
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'License :: OSI Approved :: MIT License',
